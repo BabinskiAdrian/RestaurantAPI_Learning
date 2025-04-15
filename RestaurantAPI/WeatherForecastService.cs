@@ -21,13 +21,12 @@
 
         public IEnumerable<WeatherForecast> GetZadaniePraktyczne(int numberOfElements, int minTemperature, int maxTemperature)
         {
-            return Enumerable.Range(1, numberOfElements)
-                .Select(index => new WeatherForecast
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    TemperatureC = Random.Shared.Next(minTemperature, maxTemperature),
-                    Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-                })
+            return Enumerable.Range(1, numberOfElements).Select(index => new WeatherForecast
+            {
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                TemperatureC = Random.Shared.Next(minTemperature, maxTemperature),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            })
             .ToArray();
         }
     }

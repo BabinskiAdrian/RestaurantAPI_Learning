@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace RestaurantAPI.Controllers
 {
@@ -18,11 +19,15 @@ namespace RestaurantAPI.Controllers
 
         //Zadanie
         [HttpPost]
-        [Route("/generate")]
+        [Route("generate")]
         //public IEnumerable<WeatherForecast> GetZadaniePraktyczne()
         //By móc w body wysłać więcej niż 2 parametry, musimy zrobić to poprzez klasę.
         public ActionResult<IEnumerable<WeatherForecast>> GetZadaniePraktyczne([FromQuery]int count, [FromBody] TemperatureRequest request)
         {
+            Debug.WriteLine($"Count: {count}");
+            Debug.WriteLine($"Min: {request.min}");
+            Debug.WriteLine($"Max: {request.max}");
+
             if (count < 0 || request.min > request.max) 
             {
                 return BadRequest();
