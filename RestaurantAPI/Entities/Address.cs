@@ -6,8 +6,8 @@
     
         public string City{ get; set; }
         public string Street { get; set; }
-        public string PostCode{ get; set; }
-    
+        public string PostalCode{ get; set; }
+
         //Referencje do baz danych
         public virtual Restaurant Restaurant { get; set; }
     }

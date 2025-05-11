@@ -12,6 +12,7 @@ namespace RestaurantAPI
             var builder = WebApplication.CreateBuilder(args);
 
             //ConfigureServices - kiedyś w startup.cs
+
             // Dependence Injection
             // Add services to the container.
 

@@ -39,9 +39,6 @@ namespace RestaurantAPI.Controllers
 
 
 
-
-
-
         //Notatki
         // bazowy endpoint
         [HttpGet]
