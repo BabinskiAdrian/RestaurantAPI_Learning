@@ -24,7 +24,7 @@ namespace RestaurantAPI.Entities
 
         //Nadpisywanie metody, trzeba dodać kolejnego Nugeta jeżeli chcemy korzystać z bazy danych MySQL
         private string _connectionString =
-                   "Server= ; Database=RestaurantDb; Trusted_Connection=True";
+                   "Server= (localdb)\\mssqllocaldb ; Database=RestaurantDb; Trusted_Connection=True";
                   //"Server=.\\SQLExpress;Database=RestaurantDB;Trusted_Connection=Yes"; //wersja dla SQLExpress
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

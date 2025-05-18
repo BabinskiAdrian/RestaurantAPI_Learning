@@ -11,7 +11,7 @@
         public string Category { get; set; }
         public bool HasDelivery { get; set; }
         public string ContactEmail { get; set; }
-        public string ContactNumber { get; set; }
+        public string? ContactNumber { get; set; }
         
         //Referencje do innych baz danych (Virtualne wartości na później)
         public int AddressID { get; set; } //referencja, klucz obcy do tabeli z adresem

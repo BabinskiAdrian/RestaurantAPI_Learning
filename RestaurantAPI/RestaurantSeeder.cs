@@ -1,4 +1,5 @@
-﻿using RestaurantAPI.Entities; // dla RestaurantDbContext
+﻿using RestaurantAPI.Entities;
+using System.Diagnostics; // dla RestaurantDbContext
 
 namespace RestaurantAPI
 {
@@ -6,7 +7,7 @@ namespace RestaurantAPI
     {
         private readonly RestaurantDbContext _dbcontext; //using RestaurantAPI.Entities;
         
-        RestaurantSeeder(RestaurantDbContext dbcontext)
+        public RestaurantSeeder(RestaurantDbContext dbcontext) //Wstrzykiwanie zależności
         {
             _dbcontext = dbcontext;
         }
@@ -15,8 +16,10 @@ namespace RestaurantAPI
         {
             if(_dbcontext.Database.CanConnect())
             {
+                Debug.WriteLine("!AB-Udało się połączyć");
                 if(!_dbcontext.Restaurants.Any())
                 {
+                    Debug.WriteLine("!AB-Pusta baza danych, odpalam program");
                     var restaurants = GetRestaurants();
                     _dbcontext.Restaurants.AddRange(restaurants);
                     _dbcontext.SaveChanges();
