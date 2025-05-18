@@ -10,8 +10,8 @@
         public string Description { get; set; }
         public string Category { get; set; }
         public bool HasDelivery { get; set; }
-        public string ContactEmail { get; set; }
-        public string? ContactNumber { get; set; }
+        public string ContactEmail { get; set; } // pole bez "?" oznacza że pole nie może być puste (non-nullable)
+        public string? ContactNumber { get; set; } // dodanie "?" oznacza że pole może być puste (nullable)
         
         //Referencje do innych baz danych (Virtualne wartości na później)
         public int AddressID { get; set; } //referencja, klucz obcy do tabeli z adresem
