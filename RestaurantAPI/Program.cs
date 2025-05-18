@@ -24,7 +24,6 @@ namespace RestaurantAPI
                                                         //builder.Services.AddSwaggerGen(); //Dodanie Swaggera do DI
 
             // Własne, dodanie czegoś, naszego serwisu? nie wiem
-            builder.Services.AddTransient<IWeatherForecastService, WeatherForecastService>();
             builder.Services.AddControllers(); //Dodanie kontrolerów do DI
             builder.Services.AddDbContext<RestaurantDbContext>(); // rejestracja bazy danych, nDodanie kontekstu do DI
             builder.Services.AddScoped<RestaurantSeeder>(); // rejestracja serwisu , aby można było go używać w DI
