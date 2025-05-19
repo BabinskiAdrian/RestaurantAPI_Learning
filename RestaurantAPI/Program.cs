@@ -23,10 +23,12 @@ namespace RestaurantAPI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
                                                         //builder.Services.AddSwaggerGen(); //Dodanie Swaggera do DI
 
-            // Własne, dodanie czegoś, naszego serwisu? nie wiem
+            // Własne, rejestrowanie czegoś do naszego serwisu
+            // StartUp
             builder.Services.AddControllers(); //Dodanie kontrolerów do DI
             builder.Services.AddDbContext<RestaurantDbContext>(); // rejestracja bazy danych, nDodanie kontekstu do DI
             builder.Services.AddScoped<RestaurantSeeder>(); // rejestracja serwisu , aby można było go używać w DI
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    //rejestracja automappera, aby można było go używać w DI
 
             #endregion
 
