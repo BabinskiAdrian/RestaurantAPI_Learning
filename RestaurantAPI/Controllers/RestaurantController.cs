@@ -23,12 +23,18 @@ namespace RestaurantAPI.Controllers
         [HttpPost]
          public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto )
         {
+            //Sprawdzanie czy wysłany rekord jest poprawny, czy dane są validate
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); //zwróci 400
+            }
+
             //mapowanie dto
             var restaurant = _mapper.Map<Restaurant>(dto);
 
             //dodać do bazy danych poprzez entity
             _dbContext.Restaurants.Add(restaurant); //dodawanie konteksu
-            _dbContext.SaveChanges(); //zapisanie zmian w bazie danych
+            _dbContext.SaveChanges();               //zapisanie zmian w bazie danych
 
             return Created($"/api/restaurant/{restaurant.Id}", null); //zwróci 201
         }

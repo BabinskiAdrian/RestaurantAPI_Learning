@@ -6,11 +6,11 @@
         public int Id { get; set; }  //reprezentacja klucza głównego dla reszty baz danych
 
         //Dane odnośnie restauracji:
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Category { get; set; }
-        public bool HasDelivery { get; set; }
-        public string ContactEmail { get; set; } // pole bez "?" oznacza że pole nie może być puste (non-nullable)
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Category { get; set; }
+        public bool? HasDelivery { get; set; }
+        public string? ContactEmail { get; set; } // pole bez "?" oznacza że pole nie może być puste (non-nullable)
         public string? ContactNumber { get; set; } // dodanie "?" oznacza że pole może być puste (nullable)
         
         //Referencje do innych baz danych (Virtualne wartości na później)
