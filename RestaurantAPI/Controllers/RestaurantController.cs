@@ -1,24 +1,22 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RestaurantAPI.Entities;
+using RestaurantAPI.Entities ;
 using RestaurantAPI.Models;
+using RestaurantAPI.Services;
 
 namespace RestaurantAPI.Controllers
 {
     [Route("api/restaurant")]
     public class RestaurantController : ControllerBase
     {
-        //pola tylko do otycztu służące do wstrzykiwania zależności, w kolejnym kroku
-        private readonly RestaurantDbContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly IRestaurantServices _restaurantServices; 
 
-        //konstruktor kontorlera, w ktrym wstrzykiwane są zależności
-        public RestaurantController(RestaurantDbContext dbContext, IMapper mapper) 
+        public RestaurantController(IRestaurantServices restaurantServices) 
         {
-            _dbContext = dbContext; 
-            _mapper = mapper;
+            _restaurantServices = restaurantServices;
          }
+
 
         [HttpPost]
          public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto )
@@ -26,31 +24,19 @@ namespace RestaurantAPI.Controllers
             //Sprawdzanie czy wysłany rekord jest poprawny, czy dane są validate
             if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState); //zwróci 400
+                return BadRequest(ModelState); 
             }
 
-            //mapowanie dto
-            var restaurant = _mapper.Map<Restaurant>(dto);
+            var restaurantId = _restaurantServices.Create(dto);
 
-            //dodać do bazy danych poprzez entity
-            _dbContext.Restaurants.Add(restaurant); //dodawanie konteksu
-            _dbContext.SaveChanges();               //zapisanie zmian w bazie danych
-
-            return Created($"/api/restaurant/{restaurant.Id}", null); //zwróci 201
+            return Created($"/api/restaurant/{restaurantId}", null);
         }
         
 
         [HttpGet]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {
-            //entity framework, stoworzy odpowiednie zapytanie do baz danych SQL żeby wyciągnąć listę restauracji
-            var restaurants = _dbContext
-                .Restaurants
-                .Include(r => r.Address)    //rozszerzenie o tabele powiązane
-                .Include(r => r.Dishes)     //rozszerzenie o tabele powiązane
-                .ToList();                  //pobranie wszystkich restauracji z bazy danych
-
-            var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
+            var restaurantsDto = _restaurantServices.GetAll();
 
             return Ok(restaurantsDto);
         }
@@ -58,9 +44,17 @@ namespace RestaurantAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<RestaurantDto> Get([FromRoute] int id)
         {
+            var restaurant = _restaurantServices.GetById(id);
 
-            return Ok(restaurantDto); //zwróci 200
-            
+            if (restaurant == null)
+            {
+                return NotFound(); //zwróci 404
+            }
+            else
+            { 
+                return Ok(restaurant); //zwróci 200
+            }
+
         }
 
     }
