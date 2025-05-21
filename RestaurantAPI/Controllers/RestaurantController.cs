@@ -18,7 +18,7 @@ namespace RestaurantAPI.Controllers
         {
             _dbContext = dbContext; 
             _mapper = mapper;
-        }
+         }
 
         [HttpPost]
          public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto )
@@ -58,21 +58,9 @@ namespace RestaurantAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<RestaurantDto> Get([FromRoute] int id)
         {
-            //Zwróci element restauracji o podanym id, jeżeli istnieje. Jeżeli nie istnieje to zwróci null
-            var restaurant = _dbContext.Restaurants
-                .Include(r => r.Address)    //rozszerzenie o tabele powiązane
-                .Include(r => r.Dishes)     //rozszerzenie o tabele powiązane
-               .FirstOrDefault(r => r.Id == id); //predykata jako wyraażenie lambda
-            
-            if(restaurant == null)
-            {
-                return NotFound(); //zwróci 404
-            }
 
-            var restaurantDto = _mapper.Map<RestaurantDto>(restaurant); //mapowanie z obiektu do DTO
-            {
-                return Ok(restaurantDto); //zwróci 200
-            }
+            return Ok(restaurantDto); //zwróci 200
+            
         }
 
     }
