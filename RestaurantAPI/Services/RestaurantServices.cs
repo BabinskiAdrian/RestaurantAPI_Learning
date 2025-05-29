@@ -12,6 +12,7 @@ namespace RestaurantAPI.Services
         RestaurantDto GetById(int id);
         IEnumerable<RestaurantDto> GetAll();
         int Create(CreateRestaurantDto dto);
+        bool Delete(int id);
     }
 
     public class RestaurantServices : IRestaurantServices
@@ -28,6 +29,22 @@ namespace RestaurantAPI.Services
             _mapper = mapper;
         }
         #endregion
+
+        public bool Delete(int id)
+        {
+            //Pobranie restauracji z bazy danych na podstawie id
+            var restaurant = _dbContext.Restaurants
+                .FirstOrDefault(r => r.Id == id);
+
+            // Sprawdzenie czy restauracja istnieje (czy rejestr jest w bazie danych)
+            if (restaurant == null) return false; 
+
+            // jeżeli nie jest nullem to wykonaj to: (usunięcie)
+            _dbContext.Restaurants.Remove(restaurant);
+            _dbContext.SaveChanges();
+            return true; 
+        }
+
 
         public RestaurantDto GetById(int id)
         { 
