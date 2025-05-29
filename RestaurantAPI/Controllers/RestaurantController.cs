@@ -17,6 +17,26 @@ namespace RestaurantAPI.Controllers
             _restaurantServices = restaurantServices;
          }
 
+
+        [HttpPut("{id}")]
+        public ActionResult Update([FromBody] UpdateRestaurantDto dto, [FromRoute] int id) 
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); //zwróci 400
+            }
+
+            bool recordExist = _restaurantServices.Update(dto, id);
+            if (!recordExist)
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
+
+
+
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] int id)
         {
@@ -32,7 +52,6 @@ namespace RestaurantAPI.Controllers
             {
                 return NotFound(); //zwróci 404
             }
-
         }
 
 
