@@ -22,12 +22,14 @@ namespace RestaurantAPI.Services
         // Zmienne zależności
         private readonly RestaurantDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<RestaurantServices> _logger;
 
         // Wstrzykiwanie zależności przez konstruktor
-        public RestaurantServices(RestaurantDbContext dbContext, IMapper mapper)
+        public RestaurantServices(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantServices> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
         #endregion
 
@@ -50,6 +52,10 @@ namespace RestaurantAPI.Services
 
         public bool Delete(int id)
         {
+            // Logowanie ostrzeżenia przed usunięciem
+            //_logger.LogWarning($"Restaurant with id {id} DELETE action invoked");
+            _logger.LogError($"Restaurant with id {id} DELETE action invoked"); 
+
             //Pobranie restauracji z bazy danych na podstawie id
             var restaurant = _dbContext.Restaurants
                 .FirstOrDefault(r => r.Id == id);

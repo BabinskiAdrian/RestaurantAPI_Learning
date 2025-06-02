@@ -2,11 +2,10 @@
 using RestaurantAPI.Entities;
 using RestaurantAPI.Services;
 using static System.Formats.Asn1.AsnWriter;
+using NLog.Web;
 
 namespace RestaurantAPI
 {
-    
-
     public class Program
     {
         public static void Main(string[] args)
@@ -15,6 +14,8 @@ namespace RestaurantAPI
             #region  Utworenie web hosta
             // Włanse, utworzenie web hosta
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Host.UseNLog(); // NLog: Setup NLog for Dependency injection
             #endregion
 
 
