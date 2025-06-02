@@ -5,6 +5,9 @@ namespace RestaurantAPI.Entities
 {
     public class RestaurantDbContext : DbContext //Dodajemy dziedziczenie po DbContext, wymaga to dodanie biblioteki using Microsoft.EntityFrameworkCore;
     {
+        private string _connectionString = "Server= (localdb)\\mssqllocaldb ;" +
+            "Database=RestaurantDb;Trusted_Connection=True";
+
         //Tworzymy szablon
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<Address> Addresses { get; set; }
@@ -33,10 +36,6 @@ namespace RestaurantAPI.Entities
                 .HasMaxLength(50);
         }
 
-        //Nadpisywanie metody, trzeba dodać kolejnego Nugeta jeżeli chcemy korzystać z bazy danych MySQL
-        private string _connectionString =
-                   "Server= (localdb)\\mssqllocaldb ; Database=RestaurantDb; Trusted_Connection=True";
-                  //"Server=.\\SQLExpress;Database=RestaurantDB;Trusted_Connection=Yes"; //wersja dla SQLExpress
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
