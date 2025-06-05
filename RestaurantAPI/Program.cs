@@ -34,6 +34,7 @@ namespace RestaurantAPI
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera, aby można było go używać w DI
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu, aby można było go używać w DI
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware, aby można było go używać w DI
+            builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera, aby można było go używać w DI
             #endregion
 
 
@@ -53,7 +54,13 @@ namespace RestaurantAPI
             #endregion
 
             app.UseHttpsRedirection();  //Dawniej tak samo, dodaje do potoku aplikacji middleware, który automatycznie przekierowuje wszystkie żądania HTTP na HTTPS.
-            //Dawniej app.UseRouting(); //ale teraz jeszcze tego nie mam nie wiem czemu
+
+            app.UseSwagger();   //generuje plik
+            app.UseSwaggerUI(c=>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API"); // Ścieżka do pliku swagger.json
+            });
+
             app.UseAuthorization();
             app.MapControllers();       //Dawniej app.UseEndpoints(endpoints => endpoints.MapControllers());
             app.Run();
