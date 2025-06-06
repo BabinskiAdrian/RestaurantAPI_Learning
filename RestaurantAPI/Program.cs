@@ -26,7 +26,6 @@ namespace RestaurantAPI
             builder.Services.AddControllers();          //Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
             builder.Services.AddControllers();          // Dodanie kontrolerów do DI
-            //builder.Services.AddSwaggerGen(); /       /Dodanie Swaggera do DI
 
             // Rejestrowanie własnych serwisów i innych zależności do DI
             builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych, nDodanie kontekstu do DI
@@ -34,6 +33,7 @@ namespace RestaurantAPI
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera, aby można było go używać w DI
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu, aby można było go używać w DI
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware, aby można było go używać w DI
+            builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware, aby można było go używać w DI
             builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera, aby można było go używać w DI
             #endregion
 
@@ -49,7 +49,8 @@ namespace RestaurantAPI
             seeder.Seed();
 
             #region middleware
-            app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<ErrorHandlingMiddleware>();   // W build trzeba zarejestrować Scoped
+            app.UseMiddleware<RequestTimeMiddleware>();     // W build trzeba zarejestrować Scoped
 
             #endregion
 
