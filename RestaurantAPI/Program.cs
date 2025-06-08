@@ -28,13 +28,18 @@ namespace RestaurantAPI
             builder.Services.AddControllers();          // Dodanie kontrolerów do DI
 
             // Rejestrowanie własnych serwisów i innych zależności do DI
-            builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych, nDodanie kontekstu do DI
-            builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu , aby można było go używać w DI
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera, aby można było go używać w DI
-            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu, aby można było go używać w DI
-            builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware, aby można było go używać w DI
-            builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware, aby można było go używać w DI
-            builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera, aby można było go używać w DI
+            builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych
+
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
+
+            builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seder)
+            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu
+            builder.Services.AddScoped<IDishService, DishService>();                    // rejestracja serwisu
+
+            builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
+            builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware
+
+            builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera
             #endregion
 
 

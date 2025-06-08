@@ -29,6 +29,9 @@ namespace RestaurantAPI
 
             //4
             CreateMap<UpdateRestaurantDto, Restaurant>();
+
+            //5 (wszystkie elementy się pokrywają, więc nie trzeba używać konfigurować dodatkowych rzeczy)
+            CreateMap<CreateDishDto, Dish>();
         }
     }
 }
