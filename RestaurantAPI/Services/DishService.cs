@@ -9,8 +9,10 @@ namespace RestaurantAPI.Services
     public interface IDishService
     {
         int Create(int restaurantId, CreateDishDto dto);
-        public DishDto GetById(int restuarantId, int dishId);
-        public IEnumerable<DishDto> GetAll(int restuarantId);
+        public DishDto GetById(int restaurantId, int dishId);
+        public IEnumerable<DishDto> GetAll(int restaurantId);
+        public void DeleteOne(int restaurantId, int dishId);
+        public void DeleteAll(int restaurantId);
     }
 
     public class DishService : IDishService
@@ -24,15 +26,14 @@ namespace RestaurantAPI.Services
             _mapper = mapper;
         }
 
-        public int Create(int restuarantId, CreateDishDto dto)
+        public int Create(int restaurantId, CreateDishDto dto)
         {
-            var restaurant = _dbContext.Restaurants.FirstOrDefault(r => r.Id == restuarantId);
-            if (restaurant == null)
-                throw new NotFoundException("Restaurant not found");
+            //var restaurant = GetRestaurantById(restuarantId);
+            // Nie wykorzystujemy dalej zmiennej restauracja wiec nie potrzebuejmy jej zapisywać
+            GetRestaurantById(restaurantId); 
 
             var dishEntity = _mapper.Map<Dish>(dto);
-
-            dishEntity.RestaurantId = restuarantId; // Ustawienie ID restauracji (klucz publcizny) w encji potrawy
+            dishEntity.RestaurantId = restaurantId; // Ustawienie id restauracji (klucz publcizny) w encji potrawy
 
             _dbContext.Dishes.Add(dishEntity);    // Dodawanie encji
             _dbContext.SaveChanges();             // Zapisywanie zmian w bazie danych
@@ -40,33 +41,71 @@ namespace RestaurantAPI.Services
             return dishEntity.Id;               // Zwracanie ID nowo utworzonej potrawy
         }
 
-        public DishDto GetById(int restuarantId, int dishId)
+        public DishDto GetById(int restaurantId, int dishId)
         {
-            var restaurant = _dbContext.Restaurants.FirstOrDefault(r => r.Id == restuarantId);
-            if (restaurant == null)
-                throw new NotFoundException("Restaurant not found");
-
-
-            var dish = _dbContext.Dishes.FirstOrDefault(d => d.Id == dishId);
-            if( dish is null || dish.RestaurantId != dishId)
-                throw new NotFoundException("Dish not found");
+            GetRestaurantById(restaurantId);
+            var dish = GetDishById(restaurantId, dishId);
 
             var dishDto =_mapper.Map<DishDto>(dish);
 
             return dishDto;
         }
 
-        public IEnumerable<DishDto> GetAll(int restuarantId)
+        public IEnumerable<DishDto> GetAll(int restaurantId)
         {
-            var restaurant = _dbContext.Restaurants
-                .Include(r => r.Dishes)
-                .FirstOrDefault(r => r.Id == restuarantId);
-            if (restaurant == null)
-                throw new NotFoundException("Restaurant not found");
+            var restaurant = GetRestaurantById(restaurantId);
 
 
             var dishDtos = _mapper.Map<List<DishDto>>(restaurant.Dishes);
             return dishDtos;
+        }
+
+
+        public void DeleteOne(int restaurantId, int dishId)
+        {
+            GetRestaurantById(restaurantId);
+
+            var dish = GetDishById(restaurantId, dishId);
+
+            _dbContext.RemoveRange(dish);
+            _dbContext.SaveChanges();
+
+
+            return;
+        }
+
+        public void DeleteAll(int restaurantId)
+        {
+            var restaurant = GetRestaurantById(restaurantId);
+
+            _dbContext.RemoveRange(restaurant.Dishes); // Usuwanie wszystkich potraw z restauracji
+            _dbContext.SaveChanges(); 
+
+
+            return;
+        }
+
+
+
+        // Metody prywatne, pomocnicze
+        private Restaurant GetRestaurantById(int restaurantId)
+        {
+            var restaurant = _dbContext.Restaurants
+                .Include(r => r.Dishes)
+                .FirstOrDefault(r => r.Id == restaurantId);
+            if (restaurant == null)
+                throw new NotFoundException("Restaurant not found");
+
+            return restaurant;
+        }
+
+        private Dish GetDishById(int restaurantId, int dishId)
+        {
+            var dish = _dbContext.Dishes.FirstOrDefault(d => d.Id == dishId);
+            if (dish is null || dish.RestaurantId != restaurantId)
+                throw new NotFoundException("Dish not found");
+
+            return dish;
         }
     }
 }

@@ -2,6 +2,7 @@
 using RestaurantAPI.Models;
 using RestaurantAPI.Services;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using RestaurantAPI.Entities;
 
 namespace RestaurantAPI.Controllers
 {
@@ -41,6 +42,24 @@ namespace RestaurantAPI.Controllers
             var allDishes = _dishService.GetAll(restaurantId);
 
             return Ok(allDishes);
+        }
+
+
+        [HttpDelete]
+        public ActionResult DeleteAllDishes([FromRoute] int restaurantId)
+        {
+            _dishService.DeleteAll(restaurantId);
+
+            return NoContent();
+        }
+
+        [Route("{dishId}")]
+        [HttpDelete]
+        public ActionResult DeleteOnelDishes([FromRoute] int restaurantId, [FromRoute] int dishId)
+        {
+            _dishService.DeleteOne(restaurantId, dishId);
+
+            return NoContent();
         }
 
     }
