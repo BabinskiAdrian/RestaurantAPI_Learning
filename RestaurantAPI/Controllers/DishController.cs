@@ -22,7 +22,25 @@ namespace RestaurantAPI.Controllers
 
             var newDishId = _dishService.Create(restaurantId, dto);
 
-            return Created($"api/{restaurantId}/dish/{newDishId}", null);
+            return Created($"api/restaurant/{restaurantId}/dish/{newDishId}", null);
+        }
+
+
+        [Route("{dishId}")]
+        [HttpGet]
+        public ActionResult<DishDto> GetDish([FromRoute] int restaurantId, [FromRoute] int dishId)
+        {
+            DishDto dish = _dishService.GetById(restaurantId, dishId);
+
+            return Ok(dish);
+        }
+
+        [HttpGet()]
+        public ActionResult<IEnumerable<DishDto>> GetAll([FromRoute] int restaurantId)
+        {
+            var allDishes = _dishService.GetAll(restaurantId);
+
+            return Ok(allDishes);
         }
 
     }
