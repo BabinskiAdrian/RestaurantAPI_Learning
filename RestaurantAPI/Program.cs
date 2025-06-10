@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Services;
-using static System.Formats.Asn1.AsnWriter;
 using NLog.Web;
 using RestaurantAPI.Middleware;
-using static RestaurantAPI.Services.AccountService;
 using Microsoft.AspNetCore.Identity;
+using RestaurantAPI.Models;
+using FluentValidation;
+using RestaurantAPI.Models.Validators;
+using FluentValidation.AspNetCore;
 
 namespace RestaurantAPI
 {
@@ -30,6 +32,7 @@ namespace RestaurantAPI
             builder.Services.AddControllers();          //Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
             builder.Services.AddControllers();          // Dodanie kontrolerów do DI
+            builder.Services.AddFluentValidation(); // Rejestracja FluentValidation
 
             // Rejestrowanie własnych serwisów i innych zależności do DI
             builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych
@@ -42,6 +45,8 @@ namespace RestaurantAPI
             builder.Services.AddScoped<IAccountService, AccountService>();              // rejestracja serwisu
                                                                                         // 
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  // rejestracja Hashera
+
+            builder.Services.AddScoped<IValidator<RegisterUserDto>, RegiserUserDtoValidator>(); // rejestracja validatora
 
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
             builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware
