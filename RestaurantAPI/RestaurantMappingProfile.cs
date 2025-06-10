@@ -31,6 +31,8 @@ namespace RestaurantAPI
             CreateMap<CreateDishDto, Dish>();
 
             CreateMap<Dish, DishDto>();
+
+
         }
     }
 }

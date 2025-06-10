@@ -4,6 +4,7 @@ using RestaurantAPI.Services;
 using static System.Formats.Asn1.AsnWriter;
 using NLog.Web;
 using RestaurantAPI.Middleware;
+using static RestaurantAPI.Services.AccountService;
 
 namespace RestaurantAPI
 {
@@ -35,6 +36,7 @@ namespace RestaurantAPI
             builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seder)
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu
             builder.Services.AddScoped<IDishService, DishService>();                    // rejestracja serwisu
+            builder.Services.AddScoped<IAccountService, AccountService>();                      // rejestracja serwisu ról
 
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
             builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware
