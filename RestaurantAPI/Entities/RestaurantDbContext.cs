@@ -12,19 +12,19 @@ namespace RestaurantAPI.Entities
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Dish> Dishes { get; set; }
+        public DbSet<User> Users{ get; set; }
+        public DbSet<Role> Roles{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)  //Nadpisywanie metody:
         {
+            // Restaurant
             modelBuilder.Entity<Restaurant>()
-                .Property(r => r.Name) //wyrażenie lambda, wybieranie właściwości Name
-                .IsRequired()       //wymagana
-                .HasMaxLength(25);  //maks długość dla wartości
-
-            modelBuilder.Entity<Dish>()
-                .Property(d => d.Name)
-                .IsRequired();
+                .Property(r => r.Name)  // wyrażenie lambda, wybieranie pola "Name" którego będą się tyczyć wymagania
+                .IsRequired()           // wartość jest wymagana, musi być podana
+                .HasMaxLength(25);      // maks długość dla wartości
 
 
+            // Address
             modelBuilder.Entity<Address>()
                 .Property(a => a.City)
                 .IsRequired()
@@ -34,6 +34,24 @@ namespace RestaurantAPI.Entities
                 .Property(a => a.Street)
                 .IsRequired()
                 .HasMaxLength(50);
+
+
+            // Dish
+            modelBuilder.Entity<Dish>()
+                .Property(d => d.Name)
+                .IsRequired();
+
+
+            // User 
+            modelBuilder.Entity<User>()
+                .Property(u => u.Email)
+                .IsRequired();
+
+
+            // Role
+            modelBuilder.Entity<Role>()
+                .Property(r => r.Name)
+                .IsRequired();
         }
 
 

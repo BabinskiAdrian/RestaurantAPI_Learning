@@ -16,16 +16,43 @@ namespace RestaurantAPI
         {
             if(_dbcontext.Database.CanConnect())
             {
-                Debug.WriteLine("!AB-Udało się połączyć");
+                // Roles
+                if (!_dbcontext.Roles.Any())
+                {
+                    var roles = GetRoles();
+                    _dbcontext.Roles.AddRange(roles);
+                    _dbcontext.SaveChanges();
+                }
+
+                // Restaurants
                 if(!_dbcontext.Restaurants.Any())
                 {
-                    Debug.WriteLine("!AB-Pusta baza danych, odpalam program");
                     var restaurants = GetRestaurants();
                     _dbcontext.Restaurants.AddRange(restaurants);
                     _dbcontext.SaveChanges();
                 }
             }
 
+        }
+        private IEnumerable<Role> GetRoles()
+        {
+            var roles = new List<Role>()
+            {
+                new Role()
+                {
+                    Name = "User"
+                },
+                new Role()
+                {
+                    Name = "Manager"
+                },
+                new Role()
+                {
+                    Name = "Admin"
+                }
+            };
+
+            return roles;
         }
 
         private IEnumerable<Restaurant> GetRestaurants()
