@@ -5,6 +5,7 @@ using static System.Formats.Asn1.AsnWriter;
 using NLog.Web;
 using RestaurantAPI.Middleware;
 using static RestaurantAPI.Services.AccountService;
+using Microsoft.AspNetCore.Identity;
 
 namespace RestaurantAPI
 {
@@ -12,6 +13,8 @@ namespace RestaurantAPI
     {
         public static void Main(string[] args)
         {
+            PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
+            passwordHasher.HashPassword(null, "admin123"); // Przykładowe hasło do haszowania
 
             #region  Utworenie web hosta
             // Włanse, utworzenie web hosta
@@ -33,10 +36,12 @@ namespace RestaurantAPI
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
 
-            builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seder)
+            builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seeder)
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu
             builder.Services.AddScoped<IDishService, DishService>();                    // rejestracja serwisu
-            builder.Services.AddScoped<IAccountService, AccountService>();                      // rejestracja serwisu ról
+            builder.Services.AddScoped<IAccountService, AccountService>();              // rejestracja serwisu
+                                                                                        // 
+            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  // rejestracja Hashera
 
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
             builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware
