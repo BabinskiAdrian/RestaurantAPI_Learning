@@ -8,6 +8,7 @@ using RestaurantAPI.Models;
 using FluentValidation;
 using RestaurantAPI.Models.Validators;
 using FluentValidation.AspNetCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace RestaurantAPI
 {
@@ -15,9 +16,6 @@ namespace RestaurantAPI
     {
         public static void Main(string[] args)
         {
-            PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
-            passwordHasher.HashPassword(null, "admin123"); // Przykładowe hasło do haszowania
-
             #region  Utworenie web hosta
             // Włanse, utworzenie web hosta
             var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +26,31 @@ namespace RestaurantAPI
 
             #region Rejestrowanie kontkestu, zależności i innych usług
             // Dawniej w .NET5 znajdowało się w klasie Startup.cs, ConfigureServices
+            
+            // Ustawianie tokena JWT
+            var authenticationSettings = new AuthenticationSettings();
+            builder.Configuration
+                .GetSection("Authentication")
+                .Bind(authenticationSettings); // Pobranie ustawień autoryzacji z pliku konfiguracyjnego
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Bearer";
+                options.DefaultScheme = "Bearer";
+                options.DefaultChallengeScheme = "Bearer";
+            }).AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;   // Wymuszenie HTTPS, w produkcji powinno być true
+                cfg.SaveToken = true;               // Zapis tokena w odpowiedzi, aby można było go użyć w przyszłych żądaniach
+                cfg.TokenValidationParameters = new TokenValidationParameters   //Tworzenie paremetrów validacji
+                {
+                    ValidIssuer = authenticationSettings.JwtIssuer, // Wydawca tokena,
+                    ValidAudience = authenticationSettings.JwtKey,  // Odbiorca tokena (jakie podmioty mogą używać tego tokenu
+                    // Tworzenie klucza prywatnego,  new SymmetricSecurityKey()
+                    // Na podstawie wcześniej podanej wartości "JwtKey" zapisanej w pliku appsetings.json
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                };
+            });
+
 
             builder.Services.AddControllers();          //Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
@@ -70,10 +93,10 @@ namespace RestaurantAPI
             app.UseMiddleware<RequestTimeMiddleware>();     // W build trzeba zarejestrować Scoped
 
             #endregion
-
-            app.UseHttpsRedirection();  //Dawniej tak samo, dodaje do potoku aplikacji middleware, który automatycznie przekierowuje wszystkie żądania HTTP na HTTPS.
-
-            app.UseSwagger();   //generuje plik
+            app.UseAuthentication();    // Dodanie sprawdzania autentykacji zapytania http
+            app.UseHttpsRedirection();  // Dodanie middleware, który automatycznie przekierowuje wszystkie żądania HTTP na HTTPS.
+            
+            app.UseSwagger();           //generuje plik dla swaggera
             app.UseSwaggerUI(c=>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API"); // Ścieżka do pliku swagger.json
