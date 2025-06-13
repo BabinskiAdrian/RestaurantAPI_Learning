@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities ;
@@ -52,6 +53,7 @@ namespace RestaurantAPI.Controllers
             return Created($"/api/restaurant/{restaurantId}", null);
         }
 
+        //[Authorize] 
         [HttpGet("all")]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {

@@ -16,7 +16,6 @@ namespace RestaurantAPI.Controllers
             _accountService = accountService;
         }
 
-
         [Route("register")]
         [HttpPost]
         public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
@@ -26,5 +25,14 @@ namespace RestaurantAPI.Controllers
             return Ok("User registered successfully");
         }
 
+
+        [Route("login")]
+        [HttpPost]
+        public ActionResult LoginUser([FromBody] LoginUserDto dto)
+        {
+            string token = _accountService.GenerateJwt(dto);
+
+            return Ok(token);
+        }
     }
 }

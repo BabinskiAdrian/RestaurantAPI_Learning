@@ -1,14 +1,21 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Text;
+
+using RestaurantAPI.Models.Validators;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Services;
-using NLog.Web;
-using RestaurantAPI.Middleware;
-using Microsoft.AspNetCore.Identity;
 using RestaurantAPI.Models;
+using RestaurantAPI.Middleware;
+
 using FluentValidation;
-using RestaurantAPI.Models.Validators;
 using FluentValidation.AspNetCore;
+
+using NLog.Web;
+
 using Microsoft.IdentityModel.Tokens;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestaurantAPI
 {
@@ -26,12 +33,15 @@ namespace RestaurantAPI
 
             #region Rejestrowanie kontkestu, zależności i innych usług
             // Dawniej w .NET5 znajdowało się w klasie Startup.cs, ConfigureServices
-            
+
             // Ustawianie tokena JWT
+            // 1. 
             var authenticationSettings = new AuthenticationSettings();
-            builder.Configuration
-                .GetSection("Authentication")
-                .Bind(authenticationSettings); // Pobranie ustawień autoryzacji z pliku konfiguracyjnego
+
+            builder.Configuration.GetSection("Authentication").Bind(authenticationSettings); //Pobranie ustawień autoryzacji z pliku konfiguracyjnego
+
+            builder.Services.AddSingleton(authenticationSettings);      // Rejestracja jako singleton, aby był dostępny w całej aplikacji
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Bearer";
@@ -41,13 +51,14 @@ namespace RestaurantAPI
             {
                 cfg.RequireHttpsMetadata = false;   // Wymuszenie HTTPS, w produkcji powinno być true
                 cfg.SaveToken = true;               // Zapis tokena w odpowiedzi, aby można było go użyć w przyszłych żądaniach
+
                 cfg.TokenValidationParameters = new TokenValidationParameters   //Tworzenie paremetrów validacji
                 {
-                    ValidIssuer = authenticationSettings.JwtIssuer, // Wydawca tokena,
-                    ValidAudience = authenticationSettings.JwtKey,  // Odbiorca tokena (jakie podmioty mogą używać tego tokenu
+                    ValidIssuer = authenticationSettings.JwtIssuer,// Wydawca tokena,
+                    ValidAudience = authenticationSettings.JwtIssuer,// Odbiorca tokena (jakie podmioty mogą używać tego tokenu
                     // Tworzenie klucza prywatnego,  new SymmetricSecurityKey()
                     // Na podstawie wcześniej podanej wartości "JwtKey" zapisanej w pliku appsetings.json
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
                 };
             });
 
@@ -102,6 +113,7 @@ namespace RestaurantAPI
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API"); // Ścieżka do pliku swagger.json
             });
 
+            app.UseRouting();
             app.UseAuthorization();
             app.MapControllers();       //Dawniej app.UseEndpoints(endpoints => endpoints.MapControllers());
             app.Run();
