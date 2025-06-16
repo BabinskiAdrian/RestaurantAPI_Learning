@@ -34,14 +34,17 @@ namespace RestaurantAPI
             #region Rejestrowanie kontkestu, zależności i innych usług
             // Dawniej w .NET5 znajdowało się w klasie Startup.cs, ConfigureServices
 
-            // Ustawianie tokena JWT
-            // 1. 
+            #region Ustawianie tokena JWT
+            // Tworzenie obiektu AuthenticationSettings
             var authenticationSettings = new AuthenticationSettings();
 
-            builder.Configuration.GetSection("Authentication").Bind(authenticationSettings); //Pobranie ustawień autoryzacji z pliku konfiguracyjnego
+            //Pobranie ustawień autoryzacji z pliku konfiguracyjnego
+            builder.Configuration.GetSection("Authentication").Bind(authenticationSettings); 
 
-            builder.Services.AddSingleton(authenticationSettings);      // Rejestracja jako singleton, aby był dostępny w całej aplikacji
+            // Rejestracja jako singleton, aby był dostępny w całej aplikacji
+            builder.Services.AddSingleton(authenticationSettings);      
 
+            // Rejestracja schematu autoryzacji JWT, wraz z konfiguracją
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Bearer";
@@ -61,12 +64,18 @@ namespace RestaurantAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
                 };
             });
+            builder.Services.AddAuthorization(options =>
+            {
+                // arguemtyn polityki ([nazwa], [warunki do spełnenia])
+                options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality", "German", "Polish"));
+            });
 
+            #endregion //koniec regionu, Ustawianie tokena JWT
 
             builder.Services.AddControllers();          //Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
             builder.Services.AddControllers();          // Dodanie kontrolerów do DI
-            builder.Services.AddFluentValidation(); // Rejestracja FluentValidation
+            builder.Services.AddFluentValidation();     // Rejestracja FluentValidation
 
             // Rejestrowanie własnych serwisów i innych zależności do DI
             builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych
