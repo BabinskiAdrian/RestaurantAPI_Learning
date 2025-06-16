@@ -113,8 +113,11 @@ namespace RestaurantAPI
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API"); // Ścieżka do pliku swagger.json
             });
 
+            
             app.UseRouting();
+
             app.UseAuthorization();
+           
             app.MapControllers();       //Dawniej app.UseEndpoints(endpoints => endpoints.MapControllers());
             app.Run();
 

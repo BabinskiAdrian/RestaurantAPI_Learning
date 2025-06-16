@@ -10,6 +10,7 @@ namespace RestaurantAPI.Controllers
 {
     [Route("api/restaurant")]
     [ApiController]
+    [Authorize]
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantServices _restaurantServices; 
@@ -53,7 +54,6 @@ namespace RestaurantAPI.Controllers
             return Created($"/api/restaurant/{restaurantId}", null);
         }
 
-        //[Authorize] 
         [HttpGet("all")]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {
@@ -63,6 +63,7 @@ namespace RestaurantAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public ActionResult<RestaurantDto> Get([FromRoute] int id)
         {
             var restaurant = _restaurantServices.GetById(id);
