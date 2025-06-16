@@ -80,7 +80,8 @@ namespace RestaurantAPI
                                                                                         // 
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  // rejestracja Hashera
 
-            builder.Services.AddScoped<IValidator<RegisterUserDto>, RegiserUserDtoValidator>(); // rejestracja validatora
+            builder.Services.AddScoped<IValidator<RegisterUserDto>, RegiserUserDtoValidator>();             // rejestracja validatora
+            builder.Services.AddScoped<IValidator<CreateRestaurantDto>, CreateRestaurantDtoValidator>();    // rejestracja validatora
 
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
             builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware

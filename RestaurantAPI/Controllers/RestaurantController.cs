@@ -13,7 +13,7 @@ namespace RestaurantAPI.Controllers
     [Authorize]
     public class RestaurantController : ControllerBase
     {
-        private readonly IRestaurantServices _restaurantServices; 
+        private readonly IRestaurantServices _restaurantServices;
 
         public RestaurantController(IRestaurantServices restaurantServices) 
         {
@@ -21,6 +21,7 @@ namespace RestaurantAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult Default()
         {
             return Ok("Hello from Restaurant API");
@@ -47,7 +48,8 @@ namespace RestaurantAPI.Controllers
 
 
         [HttpPost]
-         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto )
+        [Authorize(Roles = "Admin,Manager")]
+        public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto )
         {
             var restaurantId = _restaurantServices.Create(dto);
 
