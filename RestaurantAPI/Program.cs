@@ -5,6 +5,7 @@ using RestaurantAPI.Entities;
 using RestaurantAPI.Services;
 using RestaurantAPI.Models;
 using RestaurantAPI.Middleware;
+using RestaurantAPI.Authorization;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -34,7 +35,7 @@ namespace RestaurantAPI
             #region Rejestrowanie kontkestu, zależności i innych usług
             // Dawniej w .NET5 znajdowało się w klasie Startup.cs, ConfigureServices
 
-            #region Ustawianie tokena JWT
+            #region Ustawianie tokena JWT i autoryzacji
             // Tworzenie obiektu AuthenticationSettings
             var authenticationSettings = new AuthenticationSettings();
 
@@ -68,9 +69,10 @@ namespace RestaurantAPI
             {
                 // arguemtyn polityki ([nazwa], [warunki do spełnenia])
                 options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality", "German", "Polish"));
+                options.AddPolicy("Atleast20", builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
             });
-
-            #endregion //koniec regionu, Ustawianie tokena JWT
+            builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+            #endregion //koniec regionu dal, tokena JWT i autoryzacji
 
             builder.Services.AddControllers();          //Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych

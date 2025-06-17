@@ -39,6 +39,7 @@ namespace RestaurantAPI.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "Atleast20")]
         public ActionResult Delete([FromRoute] int id)
         {
             _restaurantServices.Delete(id);
