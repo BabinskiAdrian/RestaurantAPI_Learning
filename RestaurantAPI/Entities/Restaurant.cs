@@ -12,6 +12,10 @@
         public bool HasDelivery { get; set; }
         public string ContactEmail { get; set; }
         public string ContactNumber { get; set; } 
+
+        // nowe pola dodane dodane
+        public int? CreatedById { get; set; } //Id użytkownika, który utworzył restaurację
+        public User CreatedBy { get; set; } //Relacja do użytkownika, który utworzył restaurację
         
         //Referencje do innych baz danych
         public int AddressID { get; set; } //referencja, klucz obcy do tabeli z adresem

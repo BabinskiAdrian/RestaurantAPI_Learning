@@ -45,7 +45,7 @@ namespace RestaurantAPI
             // Rejestracja jako singleton, aby był dostępny w całej aplikacji
             builder.Services.AddSingleton(authenticationSettings);      
 
-            // Rejestracja schematu autoryzacji JWT, wraz z konfiguracją
+            // Rejestracja schematu autentykacjim, w tym token JWT, wraz z konfiguracją
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Bearer";
@@ -65,14 +65,19 @@ namespace RestaurantAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
                 };
             });
+            #endregion //koniec regionu dal, tokena JWT i autentykacji
+
+            #region autoryzacja (nie mylić z autentykacją)
             builder.Services.AddAuthorization(options =>
             {
                 // arguemtyn polityki ([nazwa], [warunki do spełnenia])
                 options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality", "German", "Polish"));
                 options.AddPolicy("Atleast20", builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
             });
+            
             builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
-            #endregion //koniec regionu dal, tokena JWT i autoryzacji
+            builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>(); /////////////////////
+            #endregion //koniec regionu autoryzacji
 
             builder.Services.AddControllers();          //Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
