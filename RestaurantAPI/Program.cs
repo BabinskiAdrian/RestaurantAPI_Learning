@@ -13,7 +13,6 @@ using FluentValidation.AspNetCore;
 using NLog.Web;
 
 using Microsoft.IdentityModel.Tokens;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -90,7 +89,7 @@ namespace RestaurantAPI
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
 
             builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seeder)
-            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu
+            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu [klasa oraz interfejs]
             builder.Services.AddScoped<IDishService, DishService>();                    // rejestracja serwisu
             builder.Services.AddScoped<IAccountService, AccountService>();              // rejestracja serwisu
                                                                                         // 
@@ -102,6 +101,8 @@ namespace RestaurantAPI
             builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
             builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware
 
+            builder.Services.AddScoped<IUserContextService, UserContextService>();      // rejestracja serwisu kontekstu użytkownika
+            builder.Services.AddHttpContextAccessor();                                  // rejestracja HttpContextAccessor, aby móc używać IUserContextService
             builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera
             #endregion
 

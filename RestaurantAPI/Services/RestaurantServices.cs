@@ -15,9 +15,9 @@ namespace RestaurantAPI.Services
     {
         RestaurantDto GetById(int id);
         IEnumerable<RestaurantDto> GetAll();
-        int Create(CreateRestaurantDto dto, int userId);
-        void Delete(int id, ClaimsPrincipal user);
-        void Update(int id, UpdateRestaurantDto dto, ClaimsPrincipal user);
+        int Create(CreateRestaurantDto dto);    
+        void Delete(int id);
+        void Update(int id, UpdateRestaurantDto dto);
     }
 
     public class RestaurantServices : IRestaurantServices
@@ -28,19 +28,21 @@ namespace RestaurantAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<RestaurantServices> _logger;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
         // Wstrzykiwanie zależności przez konstruktor
         public RestaurantServices(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantServices> logger,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
             _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
         #endregion
 
-        public void Update(int id, UpdateRestaurantDto dto, ClaimsPrincipal user)
+        public void Update(int id, UpdateRestaurantDto dto)
         {
 
             var restaurant = _dbContext.Restaurants
@@ -51,7 +53,7 @@ namespace RestaurantAPI.Services
 
 
             var authorizationResult = _authorizationService
-                .AuthorizeAsync(user, restaurant, new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+                .AuthorizeAsync(_userContextService.User, restaurant, new ResourceOperationRequirement(ResourceOperation.Update)).Result;
 
             if(!authorizationResult.Succeeded)
             {
@@ -66,7 +68,7 @@ namespace RestaurantAPI.Services
         }
 
 
-        public void Delete(int id, ClaimsPrincipal user)
+        public void Delete(int id)
         {
             // Logowanie błędu przed usunięciem
             _logger.LogError($"Restaurant with id {id} DELETE action invoked"); 
@@ -81,7 +83,7 @@ namespace RestaurantAPI.Services
 
 
             var authorizationResult = _authorizationService
-                .AuthorizeAsync(user, restaurant, new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+                .AuthorizeAsync(_userContextService.User, restaurant, new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
 
             // jeżeli nie jest nullem to wykonaj to: (usunięcie)
             _dbContext.Restaurants.Remove(restaurant);
@@ -115,11 +117,11 @@ namespace RestaurantAPI.Services
             return restaurantDtos;
         }
 
-        public int Create(CreateRestaurantDto dto, int userId)
+        public int Create(CreateRestaurantDto dto)
         {
             //mapowanie dto
             var restaurant = _mapper.Map<Restaurant>(dto);
-            restaurant.CreatedById = userId;
+            restaurant.CreatedById = _userContextService.GetUserId; //pobranie id użytkownika z kontekstu użytkownika
 
             //dodać do bazy danych poprzez entity
             _dbContext.Restaurants.Add(restaurant); //dodawanie konteksu
