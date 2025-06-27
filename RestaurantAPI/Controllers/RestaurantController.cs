@@ -11,7 +11,7 @@ namespace RestaurantAPI.Controllers
 {
     [Route("api/restaurant")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantServices _restaurantServices;
@@ -40,7 +40,7 @@ namespace RestaurantAPI.Controllers
 
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Atleast20")]
+        [Authorize(Policy = "Atleast20Age")]
         public ActionResult Delete([FromRoute] int id)
         {
             _restaurantServices.Delete(id);
@@ -59,8 +59,16 @@ namespace RestaurantAPI.Controllers
             return Created($"/api/restaurant/{restaurantId}", null);
         }
 
+        [HttpGet("TestAuthorization")]
+        [Authorize(Policy = "AtLeast2CreatedRestaurant")]
+        public ActionResult<IEnumerable<RestaurantDto>> TestAuthorization()
+        {
+            return Ok("Test autoryzacji przebiegl poprawnie");
+        }
+
+
         [HttpGet("all")]
-        [Authorize(Policy = "HasNationality")]
+        //[Authorize(Policy = "AtLeast2CreatedRestaurant")]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {
             var restaurantsDto = _restaurantServices.GetAll();
