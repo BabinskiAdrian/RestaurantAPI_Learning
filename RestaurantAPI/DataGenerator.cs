@@ -63,7 +63,7 @@ namespace RestaurantAPI
                             var name = f.Company.CompanyName();
                             return name.Length > 25 ? name.Substring(0, 25) : name;
                         })
-                        .RuleFor(r => r.Description, f => generatedPhrase + f.Random.String2(20, "abcde fghijkl mnopq rstu vwxyz żźćń łąśęó "))
+                        .RuleFor(r => r.Description, f => "Kfc")//generatedPhrase + f.Random.String2(20, "abcde fghijkl mnopq rstu vwxyz żźćń łąśęó "))
                         .RuleFor(r => r.Category, f => f.Commerce.Categories(1)[0])
                         .RuleFor(r => r.HasDelivery, f => f.Random.Bool())
                         .RuleFor(r => r.ContactEmail, f => f.Internet.Email())
