@@ -91,11 +91,14 @@ namespace RestaurantAPI
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
 
             builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seeder)
+            builder.Services.AddScoped<IDataGenerator, DataGenerator>();                //Generator danych własny
+
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu [klasa oraz interfejs]
             builder.Services.AddScoped<IDishService, DishService>();                    // rejestracja serwisu
             builder.Services.AddScoped<IAccountService, AccountService>();              // rejestracja serwisu
                                                                                         // 
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  // rejestracja Hashera
+
 
             builder.Services.AddScoped<IValidator<RegisterUserDto>, RegiserUserDtoValidator>();             // rejestracja validatora
             builder.Services.AddScoped<IValidator<CreateRestaurantDto>, CreateRestaurantDtoValidator>();    // rejestracja validatora

@@ -11,10 +11,24 @@ namespace RestaurantAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        public AccountController(IAccountService accountService)
+        private readonly IDataGenerator _dataGenerator;
+        public AccountController(IAccountService accountService, IDataGenerator dataGenerator)
         {
             _accountService = accountService;
+            _dataGenerator = dataGenerator;
         }
+
+
+        //specjal
+        [Route("special/DataGenerator/Seed/{amount}")]
+        [HttpPost]
+        public ActionResult DataGenerator([FromRoute]int amount)
+        {
+            _dataGenerator.Seed(amount);
+            
+            return Ok($"Seeded {amount} users successfully");
+        }
+
 
         [Route("register")]
         [HttpPost]
