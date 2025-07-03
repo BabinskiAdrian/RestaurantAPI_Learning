@@ -8,13 +8,14 @@ using RestaurantAPI.Models;
 using RestaurantAPI.Authorization;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace RestaurantAPI.Services
 {
     public interface IRestaurantServices
     {
         RestaurantDto GetById(int id);
-        IEnumerable<RestaurantDto> GetAll();
+        IEnumerable<RestaurantDto> GetAll(string searchPhrase);
         int Create(CreateRestaurantDto dto);    
         void Delete(int id);
         void Update(int id, UpdateRestaurantDto dto);
@@ -104,13 +105,14 @@ namespace RestaurantAPI.Services
             var result = _mapper.Map<RestaurantDto>(restaurant); 
             return result;
         }
-
-        public IEnumerable<RestaurantDto>GetAll()
+        public IEnumerable<RestaurantDto>GetAll(string searchPrhase)
         {
             var restaurants = _dbContext
                 .Restaurants
-                .Include(r => r.Address) 
-                .Include(r => r.Dishes) 
+                .Include(r => r.Address)
+                .Include(r => r.Dishes)
+                .Where(r => (searchPrhase == null) || (r.Name.ToLower().Contains(searchPrhase.ToLower())
+                     || r.Description.ToLower().Contains(searchPrhase.ToLower())))
                 .ToList();
 
             var restaurantDtos = _mapper.Map<List<RestaurantDto>>(restaurants);
