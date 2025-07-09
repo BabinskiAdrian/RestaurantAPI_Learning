@@ -1,17 +1,18 @@
 ﻿using FluentValidation;
-
+using RestaurantAPI.Entities;
 namespace RestaurantAPI.Models.Validators
 {
     public class RestaurantQueryValidatior : AbstractValidator<RestaurantQuery>
     {
         private readonly int[] allowedPageSizes = new[] { 5, 10, 15};
-
+        private readonly string[] allowedSortByColumnNames = { nameof(Restaurant.Name), nameof(Restaurant.Category), nameof(Restaurant.Description)};
         public RestaurantQueryValidatior()
         {
-            RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1);
+            RuleFor(r => r.SearchPhrase).MaximumLength(100);
+            RuleFor(r => r.PageNumber).GreaterThanOrEqualTo(1);
 
             //własna walidacja (custom)
-            RuleFor(x => x.PageSize).Custom((value, context) =>
+            RuleFor(r => r.PageSize).Custom((value, context) =>
             {
                 if(!allowedPageSizes.Contains(value))
                 {
@@ -21,7 +22,11 @@ namespace RestaurantAPI.Models.Validators
 
             });
 
-            RuleFor(x => x.SearchPhrase).MaximumLength(100);
+            RuleFor(r => r.SortBy)
+                .Must(
+                value => string.IsNullOrEmpty(value) || allowedSortByColumnNames.Contains(value))
+                .WithMessage($"Sort by is optional or must be in [{string.Join(",", allowedSortByColumnNames)}]");
+                
         }
     }
 }

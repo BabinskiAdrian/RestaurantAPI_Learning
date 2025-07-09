@@ -9,6 +9,7 @@ using RestaurantAPI.Authorization;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq.Expressions;
 
 namespace RestaurantAPI.Services
 {
@@ -115,12 +116,29 @@ namespace RestaurantAPI.Services
                 || r.Name.ToLower().Contains(query.SearchPhrase.ToLower())
                 || r.Description.ToLower().Contains(query.SearchPhrase.ToLower()));
 
-            var totalItemsCount = baseQuery.Count();
+
+            if(!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnsSelector = new Dictionary<string, Expression<Func<Restaurant, object>>>
+                {
+                    //{ "Name", r=>r.Name }, // hardcode jak dla debila
+                    { nameof(Restaurant.Name), r=>r.Name},
+                    { nameof(Restaurant.Description), r=>r.Description},
+                    { nameof(Restaurant.Category), r=>r.Category},
+                };
+                var selectedColumn = columnsSelector[query.SortBy];
+
+                baseQuery = query.SortDirection == SortDirection.ASC
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
 
             var restaurants = baseQuery
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
                 .ToList();
+
+            var totalItemsCount = baseQuery.Count();
 
             var restaurantDtos = _mapper.Map<List<RestaurantDto>>(restaurants);
 
