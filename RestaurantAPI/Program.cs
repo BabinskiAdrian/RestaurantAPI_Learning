@@ -24,49 +24,47 @@ namespace RestaurantAPI
         public static void Main(string[] args)
         {
             #region  Utworenie web hosta
-            // Włanse, utworzenie web hosta
             var builder = WebApplication.CreateBuilder(args);
-
-            builder.Host.UseNLog(); // NLog: Setup NLog for Dependency injection
+            builder.Host.UseNLog();
             #endregion
 
 
-            #region Rejestrowanie kontkestu, zależności i innych usług
-            // Dawniej w .NET5 znajdowało się w klasie Startup.cs, ConfigureServices
+            #region Dawniej w .NET5 klasa Startup.cs i ConfigureServices
 
-            #region Ustawianie tokena JWT i autoryzacji
-            // Tworzenie obiektu AuthenticationSettings
+            #region Ustawianie Autentykacji (nie autoryzacji)
             var authenticationSettings = new AuthenticationSettings();
+            builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);    // Pobranie ustawień autoryzacji z pliku konfiguracyjnego
+            builder.Services.AddSingleton(authenticationSettings);                              // Rejestracja jako singleton, aby był dostępny w całej aplikacji
 
-            //Pobranie ustawień autoryzacji z pliku konfiguracyjnego
-            builder.Configuration.GetSection("Authentication").Bind(authenticationSettings); 
-
-            // Rejestracja jako singleton, aby był dostępny w całej aplikacji
-            builder.Services.AddSingleton(authenticationSettings);      
-
-            // Rejestracja schematu autentykacjim, w tym token JWT, wraz z konfiguracją
+            // Rejestracja schematu autentykacji (dalej tokena JWT, wraz z konfiguracją)
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Bearer";
                 options.DefaultScheme = "Bearer";
                 options.DefaultChallengeScheme = "Bearer";
-            }).AddJwtBearer(cfg =>
+            })
+            .AddJwtBearer(cfg =>
             {
+                // Tworzenie tokena JWT
                 cfg.RequireHttpsMetadata = false;   // Wymuszenie HTTPS, w produkcji powinno być true
                 cfg.SaveToken = true;               // Zapis tokena w odpowiedzi, aby można było go użyć w przyszłych żądaniach
 
-                cfg.TokenValidationParameters = new TokenValidationParameters   //Tworzenie paremetrów validacji
+                //Tworzenie paremetrów validacji
+                cfg.TokenValidationParameters = new TokenValidationParameters   
                 {
-                    ValidIssuer = authenticationSettings.JwtIssuer,// Wydawca tokena,
-                    ValidAudience = authenticationSettings.JwtIssuer,// Odbiorca tokena (jakie podmioty mogą używać tego tokenu
-                    // Tworzenie klucza prywatnego,  new SymmetricSecurityKey()
-                    // Na podstawie wcześniej podanej wartości "JwtKey" zapisanej w pliku appsetings.json
+                    ValidIssuer = authenticationSettings.JwtIssuer,     // Wydawca tokena,
+                    ValidAudience = authenticationSettings.JwtIssuer,   // Odbiorca tokena (jakie podmioty mogą używać tego tokenu
+
+                    // IssuerSigningKey                 <-Zapis klucza to zmiennej 
+                    // new SymmetricSecurityKey()       <-Tworzenie klucza prywatnego
+                    // authenticationSettings.JwtKey    <- Odwołanie się do wartości z "JwtKey" zapisanej w pliku appsetings.json
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
                 };
             });
-            #endregion //koniec regionu dal, tokena JWT i autentykacji
+            #endregion //koniec autentykacji
 
-            #region autoryzacja (nie mylić z autentykacją)
+
+            #region Autoryzacja (nie mylić z autentykacją)
             builder.Services.AddAuthorization(options =>
             {
                 // arguemtyn polityki ([nazwa], [warunki do spełnenia])
@@ -74,23 +72,29 @@ namespace RestaurantAPI
                 options.AddPolicy("AtLeast20Age", builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
                 options.AddPolicy("AtLeast2CreatedRestaurant", builder => builder.AddRequirements(new MinimumCreatedRestaurantRequirement(2)));
             });
-            
+
             builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, MinimumCreatedRestaurantRequirementHandler>();
             #endregion //koniec regionu autoryzacji
-                
 
+
+            #region Rejestrowanie kontkestu, zależności i innych usług
+            // Dawniej w .NET5 metoda ConfigureServices
+
+            // rózne
             builder.Services.AddControllers();                                          // Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer();                                 // Dodanie eksploratora punktów końcowych
             builder.Services.AddFluentValidationAutoValidation();                       // Rejestracja FluentValidation
 
-            
             builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
             builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seeder)
             builder.Services.AddScoped<IDataGenerator, DataGenerator>();                // Generator danych własny
 
+            builder.Services.AddScoped<IUserContextService, UserContextService>();      // rejestracja serwisu kontekstu użytkownika
+            builder.Services.AddHttpContextAccessor();                                  // rejestracja HttpContextAccessor, aby móc używać IUserContextService
+            builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera
 
             // rejestracja serwisu
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();
@@ -112,31 +116,30 @@ namespace RestaurantAPI
             builder.Services.AddScoped<ErrorHandlingMiddleware>();
             builder.Services.AddScoped<RequestTimeMiddleware>();
 
-            //inne rejestracje
-            builder.Services.AddScoped<IUserContextService, UserContextService>();      // rejestracja serwisu kontekstu użytkownika
-            builder.Services.AddHttpContextAccessor();                                  // rejestracja HttpContextAccessor, aby móc używać IUserContextService
-            builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera
-            #endregion
+            #endregion // koniec rejestrowania usług
+            #endregion //koniec dawnej klasy Startup.cs
 
-
-            // budowanie aplikacji, po której zaczyna się budowanie pipe line, gdzie kolejność ma znaczenie, powyżej kolejność rejestrowania nie ma znaczenia 
-            var app = builder.Build();
 
             #region Configurowanie HTTP request pipeline
-            // Dawniej w .NET5 metoda Configure
+            // "budowanie aplikacji - ustalanie kolejnosci przepływu zapytań (pipe line). Kolejność ma znaczenie (powyżej kolejność rejestrowania nie ma znaczenia)
+            var app = builder.Build();
+
             // Własny Seeder
             var scope = app.Services.CreateScope();
             var seeder = scope.ServiceProvider.GetRequiredService<RestaurantSeeder>();
             seeder.Seed();
 
+
             #region middleware
             app.UseMiddleware<ErrorHandlingMiddleware>();   // W build trzeba zarejestrować Scoped
             app.UseMiddleware<RequestTimeMiddleware>();     // W build trzeba zarejestrować Scoped
+            #endregion // koniec middleware
 
-            #endregion
+
             app.UseAuthentication();    // Dodanie sprawdzania autentykacji zapytania http
             app.UseHttpsRedirection();  // Dodanie middleware, który automatycznie przekierowuje wszystkie żądania HTTP na HTTPS.
             
+
             app.UseSwagger();           //generuje plik dla swaggera
             app.UseSwaggerUI(c=>
             {
@@ -145,13 +148,10 @@ namespace RestaurantAPI
 
             
             app.UseRouting();
-
-            app.UseAuthorization();
-           
+            app.UseAuthorization();     
             app.MapControllers();       //Dawniej app.UseEndpoints(endpoints => endpoints.MapControllers());
-            app.Run();
-
-            #endregion
+            app.Run();                  //Odpalanie aplikacji
+            #endregion // koniec pipe line
         }
     }
 }
