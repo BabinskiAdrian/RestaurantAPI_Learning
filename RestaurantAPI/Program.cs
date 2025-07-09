@@ -79,40 +79,47 @@ namespace RestaurantAPI
             builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, MinimumCreatedRestaurantRequirementHandler>();
             #endregion //koniec regionu autoryzacji
+                
 
-            builder.Services.AddControllers();          //Dodanie kontrolerów do DI
-            builder.Services.AddEndpointsApiExplorer(); //Dodanie eksploratora punktów końcowych
-            builder.Services.AddControllers();          // Dodanie kontrolerów do DI
-            builder.Services.AddFluentValidationAutoValidation();     // Rejestracja FluentValidation
+            builder.Services.AddControllers();                                          // Dodanie kontrolerów do DI
+            builder.Services.AddEndpointsApiExplorer();                                 // Dodanie eksploratora punktów końcowych
+            builder.Services.AddFluentValidationAutoValidation();                       // Rejestracja FluentValidation
 
-            // Rejestrowanie własnych serwisów i innych zależności do DI
+            
             builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych
-
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
-
             builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seeder)
-            builder.Services.AddScoped<IDataGenerator, DataGenerator>();                //Generator danych własny
-
-            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();      // rejestracja serwisu [klasa oraz interfejs]
-            builder.Services.AddScoped<IDishService, DishService>();                    // rejestracja serwisu
-            builder.Services.AddScoped<IAccountService, AccountService>();              // rejestracja serwisu
-                                                                                        // 
-            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  // rejestracja Hashera
+            builder.Services.AddScoped<IDataGenerator, DataGenerator>();                // Generator danych własny
 
 
-            builder.Services.AddScoped<IValidator<RegisterUserDto>, RegiserUserDtoValidator>();             // rejestracja validatora
-            builder.Services.AddScoped<IValidator<CreateRestaurantDto>, CreateRestaurantDtoValidator>();    // rejestracja validatora
+            // rejestracja serwisu
+            builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();
+            builder.Services.AddScoped<IDishService, DishService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            
 
-            builder.Services.AddScoped<ErrorHandlingMiddleware>();                      // rejestracja middleware
-            builder.Services.AddScoped<RequestTimeMiddleware>();                        // rejestracja middleware
+            // rejestracja Hashera
+            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();  
 
+
+            // rejestracja validatory
+            builder.Services.AddScoped<IValidator<RegisterUserDto>, RegiserUserDtoValidator>();
+            builder.Services.AddScoped<IValidator<CreateRestaurantDto>, CreateRestaurantDtoValidator>();
+            builder.Services.AddScoped<IValidator<RestaurantQuery>, RestaurantQueryValidatior>();
+
+
+            // rejestracja middleware
+            builder.Services.AddScoped<ErrorHandlingMiddleware>();
+            builder.Services.AddScoped<RequestTimeMiddleware>();
+
+            //inne rejestracje
             builder.Services.AddScoped<IUserContextService, UserContextService>();      // rejestracja serwisu kontekstu użytkownika
             builder.Services.AddHttpContextAccessor();                                  // rejestracja HttpContextAccessor, aby móc używać IUserContextService
             builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera
             #endregion
 
 
-            // budowanie aplikacji
+            // budowanie aplikacji, po której zaczyna się budowanie pipe line, gdzie kolejność ma znaczenie, powyżej kolejność rejestrowania nie ma znaczenia 
             var app = builder.Build();
 
             #region Configurowanie HTTP request pipeline
