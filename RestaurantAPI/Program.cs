@@ -96,6 +96,16 @@ namespace RestaurantAPI
             builder.Services.AddHttpContextAccessor();                                  // rejestracja HttpContextAccessor, aby móc używać IUserContextService
             builder.Services.AddSwaggerGen();                                           // rejestracja Swaggera
 
+            builder.Services.AddCors(option =>
+            {
+                option.AddPolicy("FrontEndCilent", policyBuilder =>
+                    policyBuilder.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .WithOrigins(builder.Configuration["AllowedOrgins"])
+                    );
+
+            });
+
             // rejestracja serwisu
             builder.Services.AddScoped<IRestaurantServices, RestaurantServices>();
             builder.Services.AddScoped<IDishService, DishService>();
@@ -124,6 +134,8 @@ namespace RestaurantAPI
             // "budowanie aplikacji - ustalanie kolejnosci przepływu zapytań (pipe line). Kolejność ma znaczenie (powyżej kolejność rejestrowania nie ma znaczenia)
             var app = builder.Build();
 
+            app.UseStaticFiles();
+
             // Własny Seeder
             var scope = app.Services.CreateScope();
             var seeder = scope.ServiceProvider.GetRequiredService<RestaurantSeeder>();
@@ -136,11 +148,11 @@ namespace RestaurantAPI
             #endregion // koniec middleware
 
 
-            app.UseAuthentication();    // Dodanie sprawdzania autentykacji zapytania http
-            app.UseHttpsRedirection();  // Dodanie middleware, który automatycznie przekierowuje wszystkie żądania HTTP na HTTPS.
-            
+            app.UseAuthentication();                        // Dodanie sprawdzania autentykacji zapytania http
 
-            app.UseSwagger();           //generuje plik dla swaggera
+            app.UseHttpsRedirection();                      // Dodanie middleware, który automatycznie przekierowuje wszystkie żądania HTTP na HTTPS.
+            
+            app.UseSwagger();                               //generuje plik dla swaggera\
             app.UseSwaggerUI(c=>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API"); // Ścieżka do pliku swagger.json
@@ -148,9 +160,14 @@ namespace RestaurantAPI
 
             
             app.UseRouting();
+
+            app.UseCors("FrontEndCilent");                  // Dodanie konkretnej polityki CORS 
+
             app.UseAuthorization();     
-            app.MapControllers();       //Dawniej app.UseEndpoints(endpoints => endpoints.MapControllers());
-            app.Run();                  //Odpalanie aplikacji
+
+            app.MapControllers();                           //Dawniej app.UseEndpoints(endpoints => endpoints.MapControllers());
+
+            app.Run();                                      //Odpalanie aplikacji
             #endregion // koniec pipe line
         }
     }
