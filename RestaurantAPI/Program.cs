@@ -134,6 +134,8 @@ namespace RestaurantAPI
             // "budowanie aplikacji - ustalanie kolejnosci przepływu zapytań (pipe line). Kolejność ma znaczenie (powyżej kolejność rejestrowania nie ma znaczenia)
             var app = builder.Build();
 
+
+            app.UseResponseCaching();                       // Przed UseStaticFiles(), by w cache możliwe byłoby zapisywanie plików statycznych
             app.UseStaticFiles();
 
             // Własny Seeder
