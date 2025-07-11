@@ -8,16 +8,17 @@ namespace RestaurantAPI.Controllers
     [Authorize]
     public class FileController : ControllerBase
     {
-        public ActionResult GetFile([FromQuery]string fileName)
+        [HttpGet]
+        public ActionResult GetFile([FromQuery] string fileName)
         {
             // Pobieranie ścieżki do bazowego katalogu aplikacji
-            var rootPath = Directory.GetCurrentDirectory();
+            string rootPath = Directory.GetCurrentDirectory();
 
             // Dodajemy ścieżkę do konkretengo folderu oraz nazwę pliku
-            var filePath = $"{rootPath}/PrivateFiles/{fileName}";
+            string filePath = $"{rootPath}/PrivateFiles/{fileName}";
 
             // Sprawdzamy czy plik istnieje
-            var fileExist = System.IO.File.Exists(filePath);
+            bool fileExist = System.IO.File.Exists(filePath);
             if (!fileExist)
             {
                 return NotFound($"File {fileName} not found");
@@ -38,5 +39,27 @@ namespace RestaurantAPI.Controllers
             return File(fileContents, contentType, fileName);
         }
 
-    }
-}
+
+        [HttpPost]
+        public ActionResult Upload([FromForm]IFormFile file)
+        {
+            if (file != null && file.Length>0)
+            {
+                string rootPath = Directory.GetCurrentDirectory();
+                string fileName = file.FileName;
+                string fullPath = $"{rootPath}/PrivateFiles/{fileName}";
+
+                // tworzenie pliku w bloku using
+                using (var strem = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(strem);
+                }
+
+                return Ok($"New file \"{fileName}\" has been created");
+            }
+            else return BadRequest("File is null or empty");
+        }
+
+
+    }//klasa
+}//name space
