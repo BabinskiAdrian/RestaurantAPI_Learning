@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace RestaurantAPI
 {
@@ -86,8 +87,11 @@ namespace RestaurantAPI
             builder.Services.AddControllers();                                          // Dodanie kontrolerów do DI
             builder.Services.AddEndpointsApiExplorer();                                 // Dodanie eksploratora punktów końcowych
             builder.Services.AddFluentValidationAutoValidation();                       // Rejestracja FluentValidation
+            
+            // rejestracja bazy danych:
+            builder.Services.AddDbContext<RestaurantDbContext>(
+                option => option.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantDbConnection")));                       
 
-            builder.Services.AddDbContext<RestaurantDbContext>();                       // rejestracja bazy danych
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    // rejestracja automappera
             builder.Services.AddScoped<RestaurantSeeder>();                             // rejestracja serwisu (seeder)
             builder.Services.AddScoped<IDataGenerator, DataGenerator>();                // Generator danych własny

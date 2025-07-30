@@ -5,8 +5,7 @@ namespace RestaurantAPI.Entities
 {
     public class RestaurantDbContext : DbContext //Dodajemy dziedziczenie po DbContext, wymaga to dodanie biblioteki using Microsoft.EntityFrameworkCore;
     {
-        private string _connectionString = "Server= (localdb)\\mssqllocaldb ;" +
-            "Database=RestaurantDb;Trusted_Connection=True";
+        public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options) {}
 
         //Tworzymy szablon
         public DbSet<Restaurant> Restaurants { get; set; }
@@ -52,12 +51,6 @@ namespace RestaurantAPI.Entities
             modelBuilder.Entity<Role>()
                 .Property(r => r.Name)
                 .IsRequired();
-        }
-
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_connectionString);
         }
     }
 }
