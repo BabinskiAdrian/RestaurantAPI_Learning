@@ -26,6 +26,7 @@ namespace RestaurantAPI
         {
             #region  Utworenie web hosta
             var builder = WebApplication.CreateBuilder(args) //test ;
+
             builder.Host.UseNLog();
             #endregion
 
