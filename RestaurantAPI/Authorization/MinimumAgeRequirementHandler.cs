@@ -11,6 +11,7 @@ namespace RestaurantAPI.Authorization
             _logger = logger;
         }
 
+
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MinimumAgeRequirement requirement)
         {
             var dateOfBirth = DateTime.Parse(
